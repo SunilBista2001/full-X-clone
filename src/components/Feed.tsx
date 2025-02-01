@@ -1,14 +1,18 @@
-import Post from "./Post"
+import prisma from "@/prisma";
+import Post from "./Post";
 
-const Feed = () => {
+const Feed = async () => {
+  const posts = await prisma.post.findMany();
+
   return (
-    <div className=''>
-      <Post/>
-      <Post/>
-      <Post/>
-      <Post/>
+    <div className="">
+      {posts.map((posts) => (
+        <div key={posts.id} className="">
+          <Post />
+        </div>
+      ))}
     </div>
-  )
-}
+  );
+};
 
-export default Feed
+export default Feed;
