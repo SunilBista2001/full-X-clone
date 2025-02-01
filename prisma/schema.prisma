@@ -40,8 +40,8 @@ model Post {
   isSensitive Boolean  @default(false)
 
   // Relationships
-  user   User   @relation(fields: [userId], references: [id])
   userId String
+  user   User   @relation(fields: [userId], references: [id])
 
   rePostId Int?
   rePost   Post?  @relation("RePosts", fields: [rePostId], references: [id])

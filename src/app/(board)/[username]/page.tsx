@@ -1,8 +1,30 @@
 import Feed from "@/components/Feed";
 import Image from "@/components/Image";
+import prisma from "@/prisma";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 
-const UserPage = () => {
+const UserPage = async ({
+  params,
+}: {
+  params: Promise<{ username: string }>;
+}) => {
+  const username = (await params).username;
+
+  if (!username) return notFound();
+
+  const user = await prisma.user.findFirst({
+    where: { username },
+  });
+
+  const userFollowers = await prisma.follow.findMany({
+    where: { followerId: user?.id },
+  });
+
+  const userFollowings = await prisma.follow.findMany({
+    where: { followingId: user?.id },
+  });
+
   return (
     <div className="">
       {/* PROFILE TITLE */}
@@ -10,7 +32,7 @@ const UserPage = () => {
         <Link href="/">
           <Image path="icons/back.svg" alt="back" w={24} h={24} />
         </Link>
-        <h1 className="font-bold text-lg">Lama Dev</h1>
+        <h1 className="font-bold text-lg">{user?.displayName}</h1>
       </div>
       {/* INFO */}
       <div className="">
@@ -43,10 +65,10 @@ const UserPage = () => {
         <div className="p-4 flex flex-col gap-2">
           {/* USERNAME & HANDLE */}
           <div className="">
-            <h1 className="text-2xl font-bold">Lama Dev</h1>
-            <span className="text-textGray text-sm">@lamaWebDev</span>
+            <h1 className="text-2xl font-bold">{user?.displayName}</h1>
+            <span className="text-textGray text-sm">{`@${username}`}</span>
           </div>
-          <p>Lama Dev Youtube Channel</p>
+          <p>{user?.bio}</p>
           {/* JOB & LOCATION & DATE */}
           <div className="flex gap-4 text-textGray text-[15px]">
             <div className="flex items-center gap-2">
@@ -66,18 +88,19 @@ const UserPage = () => {
           {/* FOLLOWINGS & FOLLOWERS */}
           <div className="flex gap-4">
             <div className="flex items-center gap-2">
-              <span className="font-bold">100</span>
+              <span className="font-bold">{userFollowers?.length ?? 0}</span>
               <span className="text-textGray text-[15px]">Followers</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-bold">100</span>
+              <span className="font-bold">{userFollowings?.length ?? 0}</span>
               <span className="text-textGray text-[15px]">Followings</span>
             </div>
           </div>
         </div>
       </div>
       {/* FEED */}
-      <Feed />
+
+      <Feed userProfileId={user?.id} />
     </div>
   );
 };
