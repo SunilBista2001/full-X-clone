@@ -1,9 +1,12 @@
 import prisma from "@/prisma";
-import Post from "./Post";
 import { auth } from "@clerk/nextjs/server";
-import InfiniteFeed from "./InfiniteFeed";
+import { type NextRequest } from "next/server";
 
-const Feed = async ({ userProfileId }: { userProfileId?: string }) => {
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const userProfileId = searchParams.get("userProfileId");
+  const page = searchParams.get("page");
+  const limit = 3;
   const { userId } = await auth();
 
   if (!userId) return;
@@ -46,21 +49,16 @@ const Feed = async ({ userProfileId }: { userProfileId?: string }) => {
       },
       ...postIncludeQuery,
     },
-    take: 3,
-    skip: 0,
-    orderBy: {
-      createdAt: "desc",
-    },
+    take: limit,
+    skip: (Number(page) - 1) * limit,
   });
 
-  return (
-    <>
-      {posts.map((post) => (
-        <Post key={post.id} post={post} />
-      ))}
-      <InfiniteFeed userProfileId={userProfileId} />
-    </>
-  );
-};
+  const totalPosts = await prisma.post.count();
 
-export default Feed;
+  const hasMore = totalPosts > Number(page) * limit;
+
+  return Response.json({
+    posts,
+    hasMore,
+  });
+}

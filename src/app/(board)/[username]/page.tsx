@@ -1,6 +1,8 @@
 import Feed from "@/components/Feed";
+import FollowBtn from "@/components/FollowBtn";
 import Image from "@/components/Image";
 import prisma from "@/prisma";
+import { auth } from "@clerk/nextjs/server";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -9,21 +11,29 @@ const UserPage = async ({
 }: {
   params: Promise<{ username: string }>;
 }) => {
+  const { userId } = await auth();
   const username = (await params).username;
-
-  if (!username) return notFound();
 
   const user = await prisma.user.findFirst({
     where: { username },
+    include: {
+      _count: {
+        select: {
+          followers: true,
+          following: true,
+        },
+      },
+      following: userId
+        ? {
+            where: {
+              followerId: userId,
+            },
+          }
+        : undefined,
+    },
   });
 
-  const userFollowers = await prisma.follow.findMany({
-    where: { followerId: user?.id },
-  });
-
-  const userFollowings = await prisma.follow.findMany({
-    where: { followingId: user?.id },
-  });
+  if (!user) return notFound();
 
   return (
     <div className="">
@@ -57,9 +67,7 @@ const UserPage = async ({
           <div className="w-9 h-9 flex items-center justify-center rounded-full border-[1px] border-gray-500 cursor-pointer">
             <Image path="icons/message.svg" alt="more" w={20} h={20} />
           </div>
-          <button className="py-2 px-4 bg-white text-black font-bold rounded-full">
-            Follow
-          </button>
+          <FollowBtn userId={user.id} isFollowed={!!user?.following?.length} />
         </div>
         {/* USER DETAILS */}
         <div className="p-4 flex flex-col gap-2">
@@ -88,11 +96,11 @@ const UserPage = async ({
           {/* FOLLOWINGS & FOLLOWERS */}
           <div className="flex gap-4">
             <div className="flex items-center gap-2">
-              <span className="font-bold">{userFollowers?.length ?? 0}</span>
+              <span className="font-bold">{user?._count?.followers}</span>
               <span className="text-textGray text-[15px]">Followers</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="font-bold">{userFollowings?.length ?? 0}</span>
+              <span className="font-bold">{user?._count?.following}</span>
               <span className="text-textGray text-[15px]">Followings</span>
             </div>
           </div>

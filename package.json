@@ -12,12 +12,16 @@
     "@clerk/elements": "^0.22.19",
     "@clerk/nextjs": "^6.10.6",
     "@prisma/client": "^6.3.0",
+    "@tanstack/react-query": "^5.66.0",
     "imagekit": "^6.0.0",
     "imagekitio-next": "^1.0.1",
+    "moment": "^2.30.1",
     "next": "15.1.0",
     "prisma": "^6.3.0",
     "react": "^19.0.0",
-    "react-dom": "^19.0.0"
+    "react-dom": "^19.0.0",
+    "react-infinite-scroll-component": "^6.1.0",
+    "svix": "^1.45.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
