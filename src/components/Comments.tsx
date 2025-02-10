@@ -1,11 +1,12 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import Image from "./Image";
 import Post from "./Post";
 import { Post as PostType } from "@prisma/client";
 import { addComment } from "@/actions";
 import { useUser } from "@clerk/nextjs";
+import { socket } from "@/socket";
 
 type UserSummary = {
   displayName: string | null;
@@ -40,6 +41,21 @@ const Comments = ({
     success: false,
     error: false,
   });
+
+  useEffect(() => {
+    if (state.success) {
+      if (!user) return;
+
+      socket.emit("sendNotification", {
+        receiverUsername: username,
+        data: {
+          senderUsername: user.username,
+          action: "comment",
+          link: `/${username}/status/${postId}`,
+        },
+      });
+    }
+  }, [postId, state.success, user, username]);
 
   return (
     <>

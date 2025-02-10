@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Image from "./Image";
 import { currentUser } from "@clerk/nextjs/server";
+import Socket from "./Socket";
+import Notification from "./Notification";
 
 const menuList = [
   {
@@ -15,12 +17,12 @@ const menuList = [
     link: "/",
     icon: "explore.svg",
   },
-  {
-    id: 3,
-    name: "Notification",
-    link: "/",
-    icon: "notification.svg",
-  },
+  // {
+  //   id: 3,
+  //   name: "Notification",
+  //   link: "/",
+  //   icon: "notification.svg",
+  // },
   {
     id: 4,
     name: "Messages",
@@ -33,30 +35,30 @@ const menuList = [
     link: "/",
     icon: "bookmark.svg",
   },
-  {
-    id: 6,
-    name: "Jobs",
-    link: "/",
-    icon: "job.svg",
-  },
-  {
-    id: 7,
-    name: "Communities",
-    link: "/",
-    icon: "community.svg",
-  },
-  {
-    id: 8,
-    name: "Premium",
-    link: "/",
-    icon: "logo.svg",
-  },
-  {
-    id: 9,
-    name: "Profile",
-    link: "/",
-    icon: "profile.svg",
-  },
+  // {
+  //   id: 6,
+  //   name: "Jobs",
+  //   link: "/",
+  //   icon: "job.svg",
+  // },
+  // {
+  //   id: 7,
+  //   name: "Communities",
+  //   link: "/",
+  //   icon: "community.svg",
+  // },
+  // {
+  //   id: 8,
+  //   name: "Premium",
+  //   link: "/",
+  //   icon: "logo.svg",
+  // },
+  // {
+  //   id: 9,
+  //   name: "Profile",
+  //   link: "/",
+  //   icon: "profile.svg",
+  // },
   {
     id: 10,
     name: "More",
@@ -68,8 +70,6 @@ const menuList = [
 const LeftBar = async () => {
   const user = await currentUser();
 
-  console.log(user);
-
   return (
     <div className="h-screen sticky top-0 flex flex-col justify-between pt-2 pb-8">
       {/* LOGO MENU BUTTON */}
@@ -80,20 +80,23 @@ const LeftBar = async () => {
         </Link>
         {/* MENU LIST */}
         <div className="flex flex-col gap-4">
-          {menuList.map((item) => (
-            <Link
-              href={item.link}
-              className="p-2 rounded-full hover:bg-[#181818] flex items-center gap-4"
-              key={item.id}
-            >
-              <Image
-                path={`icons/${item.icon}`}
-                alt={item.name}
-                w={24}
-                h={24}
-              />
-              <span className="hidden xxl:inline">{item.name}</span>
-            </Link>
+          {menuList.map((item, idx) => (
+            <div key={idx}>
+              {idx == 2 && <Notification />}
+              <Link
+                href={item.link}
+                className="p-2 rounded-full hover:bg-[#181818] flex items-center gap-4"
+                key={item.id}
+              >
+                <Image
+                  path={`icons/${item.icon}`}
+                  alt={item.name}
+                  w={24}
+                  h={24}
+                />
+                <span className="hidden xxl:inline">{item.name}</span>
+              </Link>
+            </div>
           ))}
         </div>
         {/* BUTTON */}
@@ -110,6 +113,7 @@ const LeftBar = async () => {
           Post
         </Link>
       </div>
+
       {/* USER */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -125,6 +129,7 @@ const LeftBar = async () => {
         </div>
         <div className="hidden xxl:block cursor-pointer font-bold">...</div>
       </div>
+      <Socket />
     </div>
   );
 };
